@@ -6,7 +6,7 @@
 using namespace std;
 
 int main (int argc, char *argv[]) {
-    struct PACKET {
+    struct Header {
         unsigned short id;
 
 // the good header stuff
