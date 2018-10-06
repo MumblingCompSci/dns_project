@@ -14,7 +14,7 @@ LDFLAGS = -g -pthread
 #
 # You should be able to add object files here without changing anything else
 #
-TARGET = dig
+TARGET = dug
 OBJ_FILES = ${TARGET}.o
 INC_FILES = ${TARGET}.h
 
