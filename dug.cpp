@@ -108,11 +108,13 @@ void processInputs(string &name, string &dns_serv) {
         if (name[i] != '.') {
             counter++;
         } else {
-            str = str + counter + name.substr(last + 1, i);
+            if (last == 0) { last--; }
+            str = str + to_string(counter) + name.substr(last + 1, counter);
             last = i;
+            counter = 0;
         }
     }
-    str = str + counter + substr(last + 1);
+    str = str + to_string(counter) + name.substr(last + 1);
 
     DEBUG << "Processed input name: " << str << ENDL;
 }
