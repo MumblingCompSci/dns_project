@@ -57,8 +57,8 @@ int main (int argc, char *argv[]) {
     }
 
     if (argc < 3 || argc > 4) {
-      std::cout << "usage: " << argv[0] << " [-v] [name_to_lookup] [dns_server]" << endl;
-      exit(-1);
+        std::cout << "usage: " << argv[0] << " [-v] [name_to_lookup] [dns_server]" << endl;
+        exit(-1);
     }
 
     web_name = argv[1 + v];
@@ -98,5 +98,16 @@ int main (int argc, char *argv[]) {
 }
 
 void processInputs(string &name, string &dns_serv) {
-    
+
+    // 3www5mines3edu
+
+    String str = "";
+    int counter = 0;
+    for (int i = 0; i < name.length(); i++) {
+        if (name[i] != '.') {
+            counter++;
+        } else {
+            // build up the new string
+        }
+    }
 }
