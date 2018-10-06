@@ -7,11 +7,17 @@ using namespace std;
 
 
 
+
+// argv[0] = ./dug
 int main (int argc, char *argv[]) {
+    // The important arguments
+    string web_name;
+    string dns_host;
+
     struct Header {
         unsigned short id;
 
-// the good header stuff
+        // the good header stuff
         unsigned char qr :1; // query bit
         unsigned char opcode :4; // opcode
         unsigned char aa :1; // authoritative answer
@@ -21,7 +27,7 @@ int main (int argc, char *argv[]) {
         unsigned char z  :4; // set to 0
         unsigned char rcode :4; // response code
 
-// pretty much the body of the packet
+        // pretty much the body of the packet
         unsigned q_count :16; // question entries
         unsigned ans_count :16; // answer entries
         unsigned auth_count :16; // authority entries
@@ -39,11 +45,13 @@ int main (int argc, char *argv[]) {
     // * Process the command line arguments
     // ********************************************************************
     int opt = 0;
+    int v = 0;
     while ((opt = getopt(argc,argv,"v")) != -1) {
 
         switch (opt) {
             case 'v':
                 boost::log::core::get()->set_filter(boost::log::trivial::severity >= boost::log::trivial::debug);
+                v = 1;
                 break;
             case ':':
             case '?':
@@ -52,6 +60,17 @@ int main (int argc, char *argv[]) {
                 exit(-1);
         }
     }
+
+    if (argc < 3 || argc > 4) {
+      std::cout << "usage: " << argv[0] << " [-v] [name_to_lookup] [dns_server]" << endl;
+      exit(-1);
+    }
+
+    web_name = argv[1 + v];
+    dns_host = argv[2 + v];
+
+    DEBUG << "Name to look up : " << web_name << ENDL;
+    DEBUG << "DNS Server to use : " << dns_host << ENDL;
 // ******************************************************************
 
     // Step One: create the socket
@@ -73,5 +92,10 @@ int main (int argc, char *argv[]) {
     }
 
     // Step Four: write and read as needed
+
+
+
+    close(sockfd);
+    DEBUG << "Socket " << sockfd << " closed." << ENDL;
     return 0;
 }
