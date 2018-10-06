@@ -101,13 +101,18 @@ void processInputs(string &name, string &dns_serv) {
 
     // 3www5mines3edu
 
-    String str = "";
+    string str = "";
     int counter = 0;
+    int last = 0;
     for (int i = 0; i < name.length(); i++) {
         if (name[i] != '.') {
             counter++;
         } else {
-            // build up the new string
+            str = str + counter + name.substr(last + 1, i);
+            last = i;
         }
     }
+    str = str + counter + substr(last + 1);
+
+    DEBUG << "Processed input name: " << str << ENDL;
 }
