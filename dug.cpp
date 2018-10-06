@@ -115,6 +115,7 @@ void processInputs(string &name, string &dns_serv) {
         }
     }
     str = str + to_string(counter) + name.substr(last + 1);
+    name = str;
 
     DEBUG << "Processed input name: " << str << ENDL;
 }
