@@ -5,8 +5,7 @@
 
 using namespace std;
 
-
-
+void processInputs(string & name, string & dns_serv);
 
 // argv[0] = ./dug
 int main (int argc, char *argv[]) {
@@ -35,15 +34,11 @@ int main (int argc, char *argv[]) {
 
     };
 
-// ********************************************************************
     // * Process the command line arguments
-    // ********************************************************************
     boost::log::add_console_log(std::cout, boost::log::keywords::format = "%Message%");
     boost::log::core::get()->set_filter(boost::log::trivial::severity >= boost::log::trivial::info);
 
-    // ********************************************************************
     // * Process the command line arguments
-    // ********************************************************************
     int opt = 0;
     int v = 0;
     while ((opt = getopt(argc,argv,"v")) != -1) {
@@ -71,6 +66,8 @@ int main (int argc, char *argv[]) {
 
     DEBUG << "Name to look up : " << web_name << ENDL;
     DEBUG << "DNS Server to use : " << dns_host << ENDL;
+
+    processInputs(web_name, dns_host);
 // ******************************************************************
 
     // Step One: create the socket
@@ -98,4 +95,8 @@ int main (int argc, char *argv[]) {
     close(sockfd);
     DEBUG << "Socket " << sockfd << " closed." << ENDL;
     return 0;
+}
+
+void processInputs(string &name, string &dns_serv) {
+    
 }
