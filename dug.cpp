@@ -5,13 +5,11 @@
 
 using namespace std;
 
-void processInputs(string & name, string & dns_serv);
+void processHostname(string & name);
 
 // argv[0] = ./dug
 int main (int argc, char *argv[]) {
     // The important arguments
-    string web_name;
-    string dns_host;
 
     struct Header {
         unsigned short id;
@@ -76,13 +74,13 @@ int main (int argc, char *argv[]) {
         exit(-1);
     }
 
-    web_name = argv[1 + v];
-    dns_host = argv[2 + v];
+    string web_name = argv[1 + v];
+    const char* dns_host = argv[2 + v];
 
     DEBUG << "Name to look up : " << web_name << ENDL;
     DEBUG << "DNS Server to use : " << dns_host << ENDL;
 
-    processInputs(web_name, dns_host);
+    processHostname(web_name);
 // ******************************************************************
 
     // Step One: create the socket
@@ -92,7 +90,7 @@ int main (int argc, char *argv[]) {
     // Step Two: fill in the address
     struct sockaddr_in servaddr;
     bzero(&servaddr, sizeof(servaddr));
-    if (!inet_aton("138.67.1.2", &servaddr.sin_addr)) {
+    if (!inet_aton(dns_host, &servaddr.sin_addr)) {
         FATAL << "inet_aton failed" << ENDL;
         exit(-1);
     }
@@ -112,7 +110,7 @@ int main (int argc, char *argv[]) {
     return 0;
 }
 
-void processInputs(string &name, string &dns_serv) {
+void processHostname(string &name) {
 
     // 3www5mines3edu
 
