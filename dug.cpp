@@ -34,6 +34,21 @@ int main (int argc, char *argv[]) {
 
     };
 
+   struct Question {
+        string qname; // essentially the data field
+	unsigned qtype :16; // type of query
+	unsigned qclass :16; // query class
+    };
+
+    struct Answer {
+	string name;
+	unsigned type :16;
+	unsigned a_class :16;
+	unsigned ttl :32;
+	unsigned rdlength :16;
+	string rdata;
+    };
+
     // * Process the command line arguments
     boost::log::add_console_log(std::cout, boost::log::keywords::format = "%Message%");
     boost::log::core::get()->set_filter(boost::log::trivial::severity >= boost::log::trivial::info);
@@ -114,8 +129,8 @@ void processInputs(string &name, string &dns_serv) {
             counter = 0;
         }
     }
-    str = str + to_string(counter) + name.substr(last + 1);
+    str = str + to_string(counter) + name.substr(last + 1) + '0';
     name = str;
 
-    DEBUG << "Processed input name: " << str << ENDL;
+    DEBUG << "Processed input name: " << name << ENDL;
 }
