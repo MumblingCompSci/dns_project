@@ -5,16 +5,19 @@
 
 using namespace std;
 
-void processHostname(string & name);
+void processHostname(char *name);
 
 // argv[0] = ./dug
 int main (int argc, char *argv[]) {
-    // The important arguments
+    char * web_name = (char*) calloc(100, sizeof(char));
+    char * dns_address = (char*) calloc(100, sizeof(char));
+    char * buffer = (char*) calloc(1024, sizeof(char));
 
     struct Header {
         unsigned short id;
 
         // the good header stuff
+        struct {
         unsigned char qr :1; // query bit
         unsigned char opcode :4; // opcode
         unsigned char aa :1; // authoritative answer
@@ -23,6 +26,7 @@ int main (int argc, char *argv[]) {
         unsigned char ra :1; // recursion available
         unsigned char z  :4; // set to 0
         unsigned char rcode :4; // response code
+    } flags;
 
         // pretty much the body of the packet
         unsigned q_count :16; // question entries
@@ -32,10 +36,9 @@ int main (int argc, char *argv[]) {
 
     };
 
-   struct Question {
-        string qname; // essentially the data field
-	unsigned qtype :16; // type of query
-	unsigned qclass :16; // query class
+   struct Question_details {
+	    unsigned qtype :16; // type of query
+	    unsigned qclass :16; // query class
     };
 
     struct Answer {
@@ -74,12 +77,12 @@ int main (int argc, char *argv[]) {
         exit(-1);
     }
 
-    string web_name = argv[1 + v];
-    const char* dns_host = argv[2 + v];
 
+    web_name = argv[1+v];
+    dns_address = argv[2+v];
     DEBUG << "Name to look up : " << web_name << ENDL;
-    DEBUG << "DNS Server to use : " << dns_host << ENDL;
-
+    DEBUG << "DNS Server to use : " << dns_address;
+    
     processHostname(web_name);
 // ******************************************************************
 
@@ -90,7 +93,10 @@ int main (int argc, char *argv[]) {
     // Step Two: fill in the address
     struct sockaddr_in servaddr;
     bzero(&servaddr, sizeof(servaddr));
-    if (!inet_aton(dns_host, &servaddr.sin_addr)) {
+    servaddr.sin_family = PF_INET;
+    servaddr.sin_port = htons(53);
+
+    if (!inet_aton(argv[2 + v], &servaddr.sin_addr)) {
         FATAL << "inet_aton failed" << ENDL;
         exit(-1);
     }
@@ -102,17 +108,60 @@ int main (int argc, char *argv[]) {
     }
 
     // Step Four: write and read as needed
+    int bytesRead = 0;
+    int bytesSent = 0;
 
+    // create the header, name, and qdetails
+    Header * hdr = (struct Header *) malloc(sizeof(struct Header));
+    srand(time(NULL));
+    hdr->id = (unsigned short) htons(getpid());
+    hdr->flags.qr = htons(1);
+    hdr->flags.opcode = htons(0);
+    hdr->flags.aa = htons(0);
+    hdr->flags.tc = htons(0);
+    hdr->flags.rd = htons(0);
+    hdr->flags.ra = htons(0);
+    hdr->flags.z = htons(0);
+    hdr->flags.rcode = htons(0);
+    hdr->q_count = htons(1);
+    hdr->ans_count = htons(0);
+    hdr->auth_count = htons(0);
+    hdr->add_count = htons(0);
 
+    Question_details *qdetails = (struct Question_details *) malloc(sizeof(struct Question_details));
+    qdetails->qtype = htons(1);
+    qdetails->qclass = htons(1);
+
+    int totalSize = 0;
+    memcpy(buffer, hdr, sizeof(struct Header));
+    totalSize += sizeof(struct Header);
+    memcpy(buffer+totalSize, web_name, sizeof(web_name));
+    totalSize += sizeof(web_name);
+    memcpy(buffer+totalSize, qdetails, sizeof(Question_details));
+    totalSize += sizeof(Question_details);
+
+    if ((bytesSent = write(sockfd, buffer, totalSize)) < 0) {
+        FATAL << "write returned error " << strerror(errno) << ENDL;
+    }
+
+    DEBUG << "Sent " << bytesSent << " bytes" << ENDL;
+
+    bzero(&buffer, sizeof(buffer));
+
+    if ((bytesRead = read(sockfd, buffer,5000)) < 0) {
+        FATAL << "read returned error "<< strerror(errno) << ENDL;
+    }
+
+    DEBUG << "Received " << bytesRead << " bytes" << ENDL;
 
     close(sockfd);
     DEBUG << "Socket " << sockfd << " closed." << ENDL;
     return 0;
 }
 
-void processHostname(string &name) {
-
-    // 3www5mines3edu
+void processHostname(char * input) {
+    string name = string(input);
+    // 3www5mines3edu0
 
     string str = "";
     int counter = 0;
@@ -128,7 +177,8 @@ void processHostname(string &name) {
         }
     }
     str = str + to_string(counter) + name.substr(last + 1) + '0';
-    name = str;
+    
+    strcpy(input, str.c_str());
 
-    DEBUG << "Processed input name: " << name << ENDL;
+    DEBUG << "Processed input name: " << input << ENDL;
 }
