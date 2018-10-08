@@ -11,7 +11,8 @@ void processHostname(char *name);
 int main (int argc, char *argv[]) {
     char * web_name = (char*) calloc(100, sizeof(char));
     char * dns_address = (char*) calloc(100, sizeof(char));
-    char * buffer = (char*) calloc(1024, sizeof(char));
+    char * write_buffer = (char*) calloc(1024, sizeof(char));
+    char * read_buffer = (char*) calloc(1024, sizeof(char));
 
     struct Header {
         unsigned short id;
@@ -81,8 +82,8 @@ int main (int argc, char *argv[]) {
     web_name = argv[1+v];
     dns_address = argv[2+v];
     DEBUG << "Name to look up : " << web_name << ENDL;
-    DEBUG << "DNS Server to use : " << dns_address;
-    
+    DEBUG << "DNS Server to use : " << dns_address << ENDL;
+
     processHostname(web_name);
 // ******************************************************************
 
@@ -95,6 +96,7 @@ int main (int argc, char *argv[]) {
     bzero(&servaddr, sizeof(servaddr));
     servaddr.sin_family = PF_INET;
     servaddr.sin_port = htons(53);
+    servaddr.sin_addr.s_addr = inet_addr(dns_address);
 
     if (!inet_aton(argv[2 + v], &servaddr.sin_addr)) {
         FATAL << "inet_aton failed" << ENDL;
@@ -133,22 +135,20 @@ int main (int argc, char *argv[]) {
     qdetails->qclass = htons(1);
 
     int totalSize = 0;
-    memcpy(buffer, hdr, sizeof(struct Header));
+    memcpy(write_buffer, hdr, sizeof(struct Header));
     totalSize += sizeof(struct Header);
-    memcpy(buffer+totalSize, web_name, sizeof(web_name));
+    memcpy(write_buffer+totalSize, web_name, sizeof(web_name));
     totalSize += sizeof(web_name);
-    memcpy(buffer+totalSize, qdetails, sizeof(Question_details));
+    memcpy(write_buffer+totalSize, qdetails, sizeof(Question_details));
     totalSize += sizeof(Question_details);
 
-    if ((bytesSent = write(sockfd, buffer, totalSize)) < 0) {
+    if ((bytesSent = write(sockfd, write_buffer, totalSize)) < 0) {
         FATAL << "write returned error " << strerror(errno) << ENDL;
     }
 
     DEBUG << "Sent " << bytesSent << " bytes" << ENDL;
 
-    bzero(&buffer, sizeof(buffer));
-
-    if ((bytesRead = read(sockfd, buffer,5000)) < 0) {
+    if ((bytesRead = read(sockfd, read_buffer,5000)) < 0) {
         FATAL << "read returned error "<< strerror(errno) << ENDL;
     }
 
