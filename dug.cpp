@@ -65,12 +65,14 @@ int main (int argc, char *argv[]) {
     }
     // Step Three : connect the socket //
     cout << "Connecting socket..." << endl;
-    if (connect(sockfd, (const sockaddr*) &servaddr, sizeof(servaddr)) < 0) {
+    int test_int = -1281212;
+    if ((test_int = connect(sockfd, (const sockaddr*) &servaddr, sizeof(servaddr))) < 0) {
         cerr << "Connect failed " << endl;
         cerr << strerror(errno) << endl;
         close(sockfd);
         exit(-1);
     }
+    cout << "TEST INT : " << test_int << endl;
 
     // Step Four : read and write
 
@@ -114,6 +116,15 @@ int main (int argc, char *argv[]) {
         exit(-1);
     }
     cout << "Sent " << bytesSent << " bytes" << endl;
+
+    //read the result
+    int bytesRead = -1;
+    if ((bytesRead = read(sockfd, read_buff, total_size)) < 0) {
+        cerr << "read failed" << endl;
+        cerr << strerror(errno) << endl;
+        close(sockfd);
+        exit(-1);
+    }
 
     // Finally, close things out
     cout << "Closing Socket" << endl;
