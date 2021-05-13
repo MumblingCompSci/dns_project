@@ -25,7 +25,7 @@ int main (int argc, char *argv[]) {
         unsigned char tc :1; // truncate
         unsigned char rd :1; // recursion desired
         unsigned char ra :1; // recursion available
-        unsigned char z  :4; // set to 0
+        unsigned char z  :3; // set to 0
         unsigned char rcode :4; // response code
     } flags;
 
