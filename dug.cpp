@@ -79,8 +79,12 @@ int main (int argc, char *argv[]) {
     }
 
 
-    web_name = argv[1+v];
-    dns_address = argv[2+v];
+    // web_name = argv[1+v];
+    // dns_address = argv[2+v];
+    // somethingw as causing these values to change, so use memcpy to avoid that
+    memcpy(web_name, argv[1+v], sizeof(web_name));
+    memcpy(dns_address, argv[2+v], sizeof(dns_address));
+
     DEBUG << "Name to look up : " << web_name << ENDL;
     DEBUG << "DNS Server to use : " << dns_address << ENDL;
 
