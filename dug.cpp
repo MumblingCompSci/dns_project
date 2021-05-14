@@ -125,7 +125,7 @@ int main (int argc, char *argv[]) {
     hdr->flags.opcode = htons(0);
     hdr->flags.aa = htons(0);
     hdr->flags.tc = htons(0);
-    hdr->flags.rd = htons(0);
+    hdr->flags.rd = htons(1);
     hdr->flags.ra = htons(0);
     hdr->flags.z = htons(0);
     hdr->flags.rcode = htons(0);
@@ -175,12 +175,12 @@ void processHostname(char * input) {
             counter++;
         } else {
             if (last == 0) { last--; }
-            str = str + to_string(counter) + name.substr(last + 1, counter);
+            str = str + (char)counter + name.substr(last + 1, counter);
             last = i;
             counter = 0;
         }
     }
-    str = str + to_string(counter) + name.substr(last + 1) + '0';
+    str = str + (char)counter + name.substr(last + 1) /* + '0' */;
     
     strcpy(input, str.c_str());
 
