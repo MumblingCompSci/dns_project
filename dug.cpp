@@ -82,8 +82,8 @@ int main (int argc, char *argv[]) {
     // web_name = argv[1+v];
     // dns_address = argv[2+v];
     // somethingw as causing these values to change, so use memcpy to avoid that
-    memcpy(web_name, argv[1+v], sizeof(web_name));
-    memcpy(dns_address, argv[2+v], sizeof(dns_address));
+    memcpy(web_name, argv[1+v], strlen(argv[1+v]) + 1);
+    memcpy(dns_address, argv[2+v], strlen(argv[2+v]) + 1);
 
     DEBUG << "Name to look up : " << web_name << ENDL;
     DEBUG << "DNS Server to use : " << dns_address << ENDL;
@@ -141,10 +141,10 @@ int main (int argc, char *argv[]) {
     int totalSize = 0;
     memcpy(write_buffer, hdr, sizeof(struct Header));
     totalSize += sizeof(struct Header);
-    memcpy(write_buffer+totalSize, web_name, sizeof(web_name));
-    totalSize += sizeof(web_name);
+    memcpy(write_buffer+totalSize, web_name, strlen(web_name) + 1);
+    totalSize += (strlen(web_name) + 1);
     memcpy(write_buffer+totalSize, qdetails, sizeof(Question_details));
-    totalSize += sizeof(Question_details);
+    totalSize += sizeof(struct Question_details);
 
     if ((bytesSent = write(sockfd, write_buffer, totalSize)) < 0) {
         FATAL << "write returned error " << strerror(errno) << ENDL;
@@ -152,7 +152,7 @@ int main (int argc, char *argv[]) {
 
     DEBUG << "Sent " << bytesSent << " bytes" << ENDL;
 
-    if ((bytesRead = read(sockfd, read_buffer,5000)) < 0) {
+    if ((bytesRead = read(sockfd, read_buffer,1024)) < 0) {
         FATAL << "read returned error "<< strerror(errno) << ENDL;
     }
 
